@@ -1,0 +1,95 @@
+# SmartTrader — cron timing probe (public repo, free plan).
+# Purpose: measure how late GitHub starts scheduled runs in a PUBLIC repo,
+# to compare against the 5-7 h delays seen in our private repo.
+# Slots: every 15 minutes at :07 :22 :37 :52 (UTC), avoiding :00.
+# One cron line per UTC hour, so github.event.schedule tells the analyzer
+# which hour a run belonged to even if it starts hours late.
+name: timing-probe
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 0 * * *'
+    - cron: '7,22,37,52 1 * * *'
+    - cron: '7,22,37,52 2 * * *'
+    - cron: '7,22,37,52 3 * * *'
+    - cron: '7,22,37,52 4 * * *'
+    - cron: '7,22,37,52 5 * * *'
+    - cron: '7,22,37,52 6 * * *'
+    - cron: '7,22,37,52 7 * * *'
+    - cron: '7,22,37,52 8 * * *'
+    - cron: '7,22,37,52 9 * * *'
+    - cron: '7,22,37,52 10 * * *'
+    - cron: '7,22,37,52 11 * * *'
+    - cron: '7,22,37,52 12 * * *'
+    - cron: '7,22,37,52 13 * * *'
+    - cron: '7,22,37,52 14 * * *'
+    - cron: '7,22,37,52 15 * * *'
+    - cron: '7,22,37,52 16 * * *'
+    - cron: '7,22,37,52 17 * * *'
+    - cron: '7,22,37,52 18 * * *'
+    - cron: '7,22,37,52 19 * * *'
+    - cron: '7,22,37,52 20 * * *'
+    - cron: '7,22,37,52 21 * * *'
+    - cron: '7,22,37,52 22 * * *'
+    - cron: '7,22,37,52 23 * * *'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: timing-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Record start time first
+        id: t
+        run: echo "started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+
+      - name: Append one JSON line to probe/log.jsonl
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_CRON: ${{ github.event.schedule }}
+          EVENT_NAME: ${{ github.event_name }}
+          STARTED_AT: ${{ steps.t.outputs.started_at }}
+        run: |
+          set -euo pipefail
+          RUN_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" || echo '{}')
+          CREATED_AT=$(echo "$RUN_JSON" | jq -r '.created_at // empty')
+          RUN_STARTED_AT=$(echo "$RUN_JSON" | jq -r '.run_started_at // empty')
+          mkdir -p probe
+          jq -cn \
+            --arg expected_cron "$EXPECTED_CRON" \
+            --arg event "$EVENT_NAME" \
+            --arg run_id "$GITHUB_RUN_ID" \
+            --arg run_attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg run_number "$GITHUB_RUN_NUMBER" \
+            --arg created_at "$CREATED_AT" \
+            --arg run_started_at "$RUN_STARTED_AT" \
+            --arg started_at "$STARTED_AT" \
+            '{expected_cron:$expected_cron, event:$event, run_id:($run_id|tonumber),
+              run_attempt:($run_attempt|tonumber), run_number:($run_number|tonumber),
+              created_at:$created_at, run_started_at:$run_started_at, started_at:$started_at}' \
+            >> probe/log.jsonl
+          tail -n 1 probe/log.jsonl
+
+      - name: Commit and push (retry on race)
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add probe/log.jsonl
+          git commit -m "probe: run ${GITHUB_RUN_ID} [skip ci]"
+          for i in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            sleep $((i * 3))
+            git pull --rebase
+          done
+          exit 1
