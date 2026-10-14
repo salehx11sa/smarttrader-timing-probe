@@ -173,3 +173,4 @@
 {"expected_cron":"7,22,37,52 17 * * *","event":"schedule","run_id":38633711755,"run_attempt":1,"run_number":173,"created_at":"2026-10-14T20:38:00Z","run_started_at":"2026-10-14T20:38:00Z","started_at":"2026-10-14T20:38:04Z"}
 {"expected_cron":"7,22,37,52 18 * * *","event":"schedule","run_id":38641633411,"run_attempt":1,"run_number":174,"created_at":"2026-10-14T21:37:08Z","run_started_at":"2026-10-14T21:37:08Z","started_at":"2026-10-14T21:37:12Z"}
 {"expected_cron":"7,22,37,52 19 * * *","event":"schedule","run_id":38646348180,"run_attempt":1,"run_number":175,"created_at":"2026-10-14T22:15:22Z","run_started_at":"2026-10-14T22:15:22Z","started_at":"2026-10-14T22:15:25Z"}
+{"expected_cron":"7,22,37,52 20 * * *","event":"schedule","run_id":38652103324,"run_attempt":1,"run_number":176,"created_at":"2026-10-14T23:07:16Z","run_started_at":"2026-10-14T23:07:16Z","started_at":"2026-10-14T23:07:20Z"}
