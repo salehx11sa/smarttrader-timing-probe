@@ -802,3 +802,4 @@
 {"expected_cron":"7,22,37,52 22 * * *","event":"schedule","run_id":42753217984,"run_attempt":1,"run_number":802,"created_at":"2026-11-10T04:02:00Z","run_started_at":"2026-11-10T04:02:00Z","started_at":"2026-11-10T04:02:04Z"}
 {"expected_cron":"7,22,37,52 23 * * *","event":"schedule","run_id":42756832282,"run_attempt":1,"run_number":803,"created_at":"2026-11-10T04:35:29Z","run_started_at":"2026-11-10T04:35:29Z","started_at":"2026-11-10T04:35:33Z"}
 {"expected_cron":"7,22,37,52 0 * * *","event":"schedule","run_id":42773179561,"run_attempt":1,"run_number":804,"created_at":"2026-11-10T07:08:12Z","run_started_at":"2026-11-10T07:08:12Z","started_at":"2026-11-10T07:08:15Z"}
+{"expected_cron":"7,22,37,52 1 * * *","event":"schedule","run_id":42781672636,"run_attempt":1,"run_number":805,"created_at":"2026-11-10T08:19:00Z","run_started_at":"2026-11-10T08:19:00Z","started_at":"2026-11-10T08:19:04Z"}
